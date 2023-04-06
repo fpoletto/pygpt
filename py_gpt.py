@@ -3,7 +3,7 @@ import streamlit as st
 from streamlit_chat import message
 import random
 
-openai.api_key = openai_token
+openai.api_key = st.secrets.openai_token
 
 st.title('PyGPT')
 st.subheader('Seu assistente pessoal de Python.')
