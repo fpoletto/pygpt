@@ -5,8 +5,8 @@ import random
 
 API_KEY = st.secrets.openai_token
 
-st.title('PyGPT')
-st.subheader('Seu assistente pessoal de Python.')
+st.title('Aprender Python')
+st.subheader('Um lugar legal para você tirar suas dúvidas sobre o Python.')
 
 if 'messages' not in st.session_state:
     st.session_state['messages'] = [
@@ -26,9 +26,7 @@ def conversation(this_question, creativity):
         temperature=creativity,
         messages=st.session_state['messages'],
     )
-    # print(completion.choices[0].message.content)
     answer = completion.choices[0].message.content
-    # print(answer)
     st.session_state['messages'].append({"role": "assistant", "content": answer})
 
 with st.form(key='basic'):
@@ -39,7 +37,7 @@ with st.form(key='basic'):
         conversation(question, creativity)
         question = ''
 
-tab1, tab2 = st.tabs(["Coversa", "Código"])
+tab1, tab2, tab3 = st.tabs(["Coversa", "Código", "Utilidades"])
 with tab1:
     for i in st.session_state['messages']:
         if i['role'] == 'system' or i['content'] == '':
@@ -57,5 +55,57 @@ with tab2:
             st.markdown(f"Usuário: {i['content']}")
         else:
             st.markdown(f"Assistente: {i['content']}")
+with tab3:
+    st.code("""
+import os
+os.system('cls' if os.name == 'nt' else 'clear')
 
-print(st.session_state['messages'])
+def code():
+    #ESCREVA SEU CÓDIGO TODO DENTRO DESSA FUNÇÃO
+    #OU
+    #import SEU_SCRIPT
+    #SEU_SCRIPT()
+
+if __name__ == '__main__':
+    try:
+        code()
+
+    except Exception as E:
+        try:
+            from openai import OpenAI
+            import json
+            import time
+
+            ID = INSIRA_ID_DO_ASSISTENTE
+            API_KEY = INSIRA_SUA_CHAVE_AQUI
+            client = OpenAI(api_key=API_KEY)
+
+            chat = client.beta.threads.create(
+            messages=[
+                {"role": "user", "content": f\"""Eu tentei rodar um script, mas recebi uma mensagem de erro.
+                    Tente me explicar como resolver esse problema. Use exemplos. Dê alternativas.
+                    Consulte a documentação dos módulos, se for preciso.
+                    Código: {str(code)}
+                    Erro recebido: {E}\"""}
+                    ],
+                )
+
+            run = client.beta.threads.runs.create(thread_id=chat.id, assistant_id=ID)
+            print(f'Erro encontrado: {E}')
+            print('Buscando solução.', end='')
+
+            while run.status != 'completed':
+                run = client.beta.threads.runs.retrieve(thread_id=chat.id, run_id=run.id)
+                print(f'.', end='')
+                time.sleep(.5)
+            else:
+                print('')
+            
+            message_response = client.beta.threads.messages.list(thread_id=chat.id)
+            messages =  message_response.data
+            this_msg = messages[0]
+            print(this_msg.content[0].text.value)
+
+        except Exception as E:
+            print(E)
+    """)
