@@ -1,46 +1,47 @@
-import openai
+from openai import OpenAI
 import streamlit as st
 from streamlit_chat import message
 import random
 
-openai.api_key = st.secrets.openai_token
+API_KEY = st.secrets.openai_token
 
 st.title('PyGPT')
 st.subheader('Seu assistente pessoal de Python.')
 
-if 'system_prompt' not in st.session_state:
-    st.session_state['system_prompt'] = [{"role": "system",
-                                          "content": "Você é um experiente assistente de programação em "
-                                                     "Python. Faça o possível para tirar as dúvidas do "
-                                                     "usuário. Não deixe passar nenhum detalhe."}]
+if 'messages' not in st.session_state:
+    st.session_state['messages'] = [
+        {"role": "system", "content": "Você é um especialista na linguagem Python. Breve e direto, sempre atende com educação às dúvidas dos alunos."}
+        ]
+    
 container = st.empty()
-container.write(f"Prompt de sistema: {st.session_state['system_prompt'][0]['content']}")
+container.write(f"Prompt de sistema: {st.session_state['messages'][0]['content']}")
 
-def conversation(this_question):
-    global creativity
-    st.session_state['system_prompt'].append({"role": "user", "content": this_question})
-    used_tokens = len(str(st.session_state['system_prompt']))
-    available_tokens = 4096 - used_tokens
-    response = openai.ChatCompletion.create(model='gpt-3.5-turbo',
-                                            messages=st.session_state['system_prompt'],
-                                            temperature=creativity,
-                                            max_tokens=available_tokens,
-                                            n=1)
+def conversation(this_question, creativity):
+    this_message = {"role": "user", "content": this_question}
+    st.session_state['messages'].append(this_message)
+    client = OpenAI(api_key=API_KEY)
 
-    response_text = response['choices'][0]['message']['content']
-    st.session_state['system_prompt'].append({"role": "assistant", "content": response_text})
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        temperature=creativity,
+        messages=st.session_state['messages'],
+    )
+    # print(completion.choices[0].message.content)
+    answer = completion.choices[0].message.content
+    # print(answer)
+    st.session_state['messages'].append({"role": "assistant", "content": answer})
 
 with st.form(key='basic'):
     creativity = st.slider('Nível de criatividade', 0.0, 1.0)
-    question = st.text_input('Qual sua dúvida?')
+    question = st.text_area('Qual sua dúvida?')
     submit_button = st.form_submit_button("Enviar")
     if submit_button:
-        conversation(question)
+        conversation(question, creativity)
         question = ''
 
 tab1, tab2 = st.tabs(["Coversa", "Código"])
 with tab1:
-    for i in st.session_state['system_prompt']:
+    for i in st.session_state['messages']:
         if i['role'] == 'system' or i['content'] == '':
             pass
         elif i['role'] == 'user':
@@ -49,7 +50,7 @@ with tab1:
             message(is_user=False, message=i['content'], key=random.randint(0, 999))
 
 with tab2:
-    for i in st.session_state['system_prompt']:
+    for i in st.session_state['messages']:
         if i['role'] == 'system' or i['content'] == '':
             pass
         elif i['role'] == 'user':
@@ -57,4 +58,4 @@ with tab2:
         else:
             st.markdown(f"Assistente: {i['content']}")
 
-print(st.session_state['system_prompt'])
+print(st.session_state['messages'])
