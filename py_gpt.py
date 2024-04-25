@@ -33,8 +33,10 @@ def conversation(this_question):
 with st.form(key='basic'):
     creativity = st.slider('Nível de criatividade', 0.0, 1.0)
     question = st.text_input('Qual sua dúvida?')
-    st.form_submit_button("Enviar", on_click=conversation(question))
-    question = ''
+    submit_button = st.form_submit_button("Enviar")
+    if submit_button:
+        conversation(question)
+        question = ''
 
 tab1, tab2 = st.tabs(["Coversa", "Código"])
 with tab1:
