@@ -62,10 +62,12 @@ with tab3:
     os.system('cls' if os.name == 'nt' else 'clear')
     
     def code():
-        #ESCREVA SEU CÓDIGO TODO DENTRO DESSA FUNÇÃO
-        #OU
-        #import SEU_SCRIPT
-        #SEU_SCRIPT()
+        '''
+        Essa função vai ser seu código todo. O que você escrever aqui, será executado ao fim do código,
+        dentro da condicional "if __name__ == '__main__':"
+        ESCREVA SEU CÓDIGO TODO DENTRO DESSA FUNÇÃO, e rode seu script normalmente.
+        '''
+        
     
     if __name__ == '__main__':
         try:
