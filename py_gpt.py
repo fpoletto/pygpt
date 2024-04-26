@@ -56,7 +56,7 @@ with tab2:
         else:
             st.markdown(f"Assistente: {i['content']}")
 with tab3:
-    with st.expander('Assistente de programação com ChatGPT')
+    with st.expander('Assistente de programação com ChatGPT'):
         st.code("""
     import os
     os.system('cls' if os.name == 'nt' else 'clear')
